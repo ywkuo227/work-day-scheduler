@@ -1,16 +1,19 @@
-var eleTimeBlock = $(".container");
-var colorStatus;
+// Declare global variables.
+var eleTimeBlock = $(".container"),
+    colorStatus;
 
+// Function to change the color of the textarea based on time of the day.
 function setColorStatus(i) {
-    if ((moment().hour() + 1) > i) {
+    if ((moment().hour()) > i) {
         colorStatus = "past";
-    } else if ((moment().hour() + 1) === i) {
+    } else if ((moment().hour()) === i) {
         colorStatus = "present";
-    } else if ((moment().hour() + 1) < i) {
+    } else if ((moment().hour()) < i) {
         colorStatus = "future";
     }
 }
 
+// Generate Time Block by using JQuery and backtick. It also set the color of the textbox by calling Set Color Status function.
 function genTimeBlock() {
 
     for (i = 9; i <= 17; i++) {
@@ -38,6 +41,7 @@ function genTimeBlock() {
 
 }
 
+// Funtion to update the color (by calling Set Color Status function) of the textarea in the Time Block after being generated.
 function updateTimeBlock() {
 
     for (i = 9; i <= 17; i++) {
@@ -58,6 +62,7 @@ function updateTimeBlock() {
     }
 }
 
+// Display the current day. The function refreshes every second. It also call the update Time Block function.
 function displayCurrentTime() {
     setInterval(function () {
         $("#currentDay").text(moment().format('[Today is ]dddd, MMMM Do YYYY'));
@@ -65,9 +70,51 @@ function displayCurrentTime() {
     }, 1000);
 }
 
+// Intializes the page by calling Display Current Time funtion and Generate Time Block function, as well as calling the saved events from the Local Storage.
 function pageInitialize() {
+    $("#currentDay").text(moment().format('[Today is ]dddd, MMMM Do YYYY'));
     displayCurrentTime();
     genTimeBlock();
+
+    if ((JSON.parse(localStorage.getItem("savedevents"))) !== null) {
+        var loadSavedEvents = JSON.parse(localStorage.getItem("savedevents"));
+
+        for (i = 0; i < loadSavedEvents.length; i++) {
+            $("#" + loadSavedEvents[i].eventHour).val(loadSavedEvents[i].eventContent);
+        }
+
+    } else { }
+
 }
 
+// Call for page initialization.
 pageInitialize();
+
+// Once a Save Button is clicked, the function assess whether a previous event entry exist in the Local Storage.
+// If exist, overwrite. Otherwise, push to the end of a private array and save to Local Storage again.
+// Array.find() method: https://www.w3schools.com/jsref/jsref_find.asp#:~:text=%20JavaScript%20Array%20find%20%28%29%20Method%20%201,Details.%20%206%20More%20Examples.%20%20More%20
+$(".saveBtn").on("click", (event) => {
+    var savedEvents = [];
+
+    if ((JSON.parse(localStorage.getItem("savedevents"))) !== null) {
+        savedEvents = JSON.parse(localStorage.getItem("savedevents"));
+    } else { }
+
+    if (savedEvents.length !== 0) {
+        if (savedEvents.find(se => se.eventHour === event.target.previousElementSibling.id) !== undefined) {
+            savedEvents.find(se => se.eventHour === event.target.previousElementSibling.id).eventContent = ($("#" + event.target.previousElementSibling.id).val());
+        } else if (savedEvents.find(se => se.eventHour === event.target.previousElementSibling.id) === undefined) {
+            savedEvents.push({
+                eventHour: (event.target.previousElementSibling.id),
+                eventContent: ($("#" + event.target.previousElementSibling.id).val())
+            });
+        }
+    } else {
+        savedEvents.push({
+            eventHour: (event.target.previousElementSibling.id),
+            eventContent: ($("#" + event.target.previousElementSibling.id).val())
+        });
+    }
+
+    localStorage.setItem("savedevents", JSON.stringify(savedEvents));
+});
