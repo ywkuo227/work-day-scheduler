@@ -9,6 +9,9 @@ User can event information regarding their event into any of the text area from 
 
 ![Screenshot of Work Day Scheduler](assets/img/screenshot.jpeg)
 
+## Link to Deployed Application
+https://ywkuo227.github.io/work-day-scheduler/
+
 ## Features
 - The code will verify if a previous event exist in Local Storage for the hour the user is saving a new event to. If exist, the code will replace the event information. Otherwise, the event will be added to Local Storage as new event.
 
